@@ -1,0 +1,170 @@
+import { useState, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { X } from 'lucide-react';
+
+// Import portfolio images
+import prewedding1 from '@/assets/portfolio/prewedding-1.jpg';
+import wedding1 from '@/assets/portfolio/wedding-1.jpg';
+import babyshower1 from '@/assets/portfolio/babyshower-1.jpg';
+import birthday1 from '@/assets/portfolio/birthday-1.jpg';
+import drone1 from '@/assets/portfolio/drone-1.jpg';
+import model1 from '@/assets/portfolio/model-1.jpg';
+
+const categories = [
+  'All',
+  'Wedding',
+  'Pre-Wedding',
+  'Baby Shower & Maternity',
+  'Birthdays & Family',
+  'Drone Shoot',
+  'Model & Candid',
+];
+
+const portfolioItems = [
+  { id: 1, category: 'Wedding', image: wedding1, title: 'Royal Wedding Celebration' },
+  { id: 2, category: 'Pre-Wedding', image: prewedding1, title: 'Golden Hour Romance' },
+  { id: 3, category: 'Baby Shower & Maternity', image: babyshower1, title: 'Blessed Beginnings' },
+  { id: 4, category: 'Birthdays & Family', image: birthday1, title: 'First Birthday Joy' },
+  { id: 5, category: 'Drone Shoot', image: drone1, title: 'Aerial Wedding View' },
+  { id: 6, category: 'Model & Candid', image: model1, title: 'Elegant Portrait' },
+];
+
+export const PortfolioSection = () => {
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  const filteredItems = activeCategory === 'All'
+    ? portfolioItems
+    : portfolioItems.filter((item) => item.category === activeCategory);
+
+  return (
+    <section id="portfolio" className="section-padding bg-background relative" ref={ref}>
+      <div className="container mx-auto">
+        {/* Section Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="gold-line" />
+            <span className="text-primary uppercase tracking-[0.2em] text-xs font-medium">
+              Portfolio
+            </span>
+            <div className="gold-line" />
+          </div>
+          <h2 className="section-title">
+            Stories Captured in
+            <span className="block text-gradient-gold">Every Frame</span>
+          </h2>
+          <p className="section-subtitle mx-auto mt-6">
+            Each photograph tells a unique story of love, joy, and celebration.
+          </p>
+        </motion.div>
+
+        {/* Category Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-wrap justify-center gap-3 mb-12"
+        >
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={`px-5 py-2 rounded-full text-xs uppercase tracking-wider font-medium transition-all duration-300 ${
+                activeCategory === category
+                  ? 'bg-primary text-primary-foreground shadow-soft'
+                  : 'bg-card text-muted-foreground hover:bg-accent/30 hover:text-foreground border border-border/50'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Portfolio Grid */}
+        <motion.div
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="group relative aspect-[4/5] overflow-hidden rounded-lg cursor-pointer card-hover"
+                onClick={() => setLightboxImage(item.image)}
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                  <span className="text-primary text-xs uppercase tracking-wider font-medium">
+                    {item.category}
+                  </span>
+                  <h3 className="text-foreground font-serif text-xl mt-2">
+                    {item.title}
+                  </h3>
+                </div>
+
+                {/* Corner Decoration */}
+                <div className="absolute top-4 right-4 w-10 h-10 border-t-2 border-r-2 border-primary/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-4 left-4 w-10 h-10 border-b-2 border-l-2 border-primary/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-xl p-6"
+            onClick={() => setLightboxImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative max-w-5xl max-h-[90vh] w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={lightboxImage}
+                alt="Gallery image"
+                className="w-full h-full object-contain rounded-lg"
+              />
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
+              >
+                <X size={20} />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+};
