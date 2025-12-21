@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { X, Play } from 'lucide-react';
-import { usePortfolioItems, getCategoryLabel, PortfolioItem } from '@/hooks/usePortfolioItems';
-import { getEmbedUrl, getYouTubeThumbnail, isYouTubeUrl } from '@/lib/embedUtils';
+import { Play } from 'lucide-react';
+import { usePortfolioItems, getCategoryLabel } from '@/hooks/usePortfolioItems';
+import { getYouTubeThumbnail, isYouTubeUrl, getEmbedUrl } from '@/lib/embedUtils';
 
 // Import fallback portfolio images
 import prewedding1 from '@/assets/portfolio/prewedding-1.jpg';
@@ -22,20 +23,29 @@ const categories = [
   'Model & Candid',
 ];
 
+// Mapping from display label to URL slug
+const categorySlugMapping: Record<string, string> = {
+  'Wedding': 'wedding',
+  'Pre-Wedding': 'pre-wedding',
+  'Baby Shower & Maternity': 'baby-shower-maternity',
+  'Birthdays & Family': 'birthdays-family',
+  'Drone Shoot': 'drone',
+  'Model & Candid': 'model-candid',
+};
+
 // Fallback static items (shown when no database items exist)
 const fallbackItems = [
-  { id: '1', category: 'Wedding', image: wedding1, title: 'Royal Wedding Celebration' },
-  { id: '2', category: 'Pre-Wedding', image: prewedding1, title: 'Golden Hour Romance' },
-  { id: '3', category: 'Baby Shower & Maternity', image: babyshower1, title: 'Blessed Beginnings' },
-  { id: '4', category: 'Birthdays & Family', image: birthday1, title: 'First Birthday Joy' },
-  { id: '5', category: 'Drone Shoot', image: drone1, title: 'Aerial Wedding View' },
-  { id: '6', category: 'Model & Candid', image: model1, title: 'Elegant Portrait' },
+  { id: '1', category: 'Wedding', slug: 'wedding', image: wedding1, title: 'Royal Wedding Celebration' },
+  { id: '2', category: 'Pre-Wedding', slug: 'pre-wedding', image: prewedding1, title: 'Golden Hour Romance' },
+  { id: '3', category: 'Baby Shower & Maternity', slug: 'baby-shower-maternity', image: babyshower1, title: 'Blessed Beginnings' },
+  { id: '4', category: 'Birthdays & Family', slug: 'birthdays-family', image: birthday1, title: 'First Birthday Joy' },
+  { id: '5', category: 'Drone Shoot', slug: 'drone', image: drone1, title: 'Aerial Wedding View' },
+  { id: '6', category: 'Model & Candid', slug: 'model-candid', image: model1, title: 'Elegant Portrait' },
 ];
 
 export const PortfolioSection = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('All');
-  const [lightboxItem, setLightboxItem] = useState<PortfolioItem | null>(null);
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   
@@ -43,6 +53,11 @@ export const PortfolioSection = () => {
 
   // Use database items if available, otherwise use fallback
   const hasDbItems = dbItems.length > 0;
+
+  // Navigate to category gallery
+  const handleCategoryClick = (categorySlug: string) => {
+    navigate(`/gallery/${categorySlug}`);
+  };
 
   const filteredDbItems = activeCategory === 'All'
     ? dbItems
@@ -123,7 +138,7 @@ export const PortfolioSection = () => {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="group relative aspect-[4/5] overflow-hidden rounded-lg cursor-pointer card-hover bg-muted"
-                  onClick={() => setLightboxItem(item)}
+                  onClick={() => handleCategoryClick(item.category)}
                 >
                   {/* Embed Preview */}
                   <div className="absolute inset-0 pointer-events-none">
@@ -193,7 +208,7 @@ export const PortfolioSection = () => {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="group relative aspect-[4/5] overflow-hidden rounded-lg cursor-pointer card-hover"
-                  onClick={() => setLightboxImage(item.image)}
+                  onClick={() => handleCategoryClick(item.slug)}
                 >
                   <img
                     src={item.image}
@@ -224,75 +239,6 @@ export const PortfolioSection = () => {
           </motion.div>
         )}
       </div>
-
-      {/* Lightbox for Database Items (Embed) */}
-      <AnimatePresence>
-        {lightboxItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-xl p-6"
-            onClick={() => setLightboxItem(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="relative max-w-5xl max-h-[90vh] w-full aspect-video"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <iframe
-                src={getEmbedUrl(lightboxItem.embed_url)}
-                className="w-full h-full rounded-lg"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-              <button
-                onClick={() => setLightboxItem(null)}
-                className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
-              >
-                <X size={20} />
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Lightbox for Fallback Images */}
-      <AnimatePresence>
-        {lightboxImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-xl p-6"
-            onClick={() => setLightboxImage(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="relative max-w-5xl max-h-[90vh] w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={lightboxImage}
-                alt="Gallery image"
-                className="w-full h-full object-contain rounded-lg"
-              />
-              <button
-                onClick={() => setLightboxImage(null)}
-                className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
-              >
-                <X size={20} />
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };
