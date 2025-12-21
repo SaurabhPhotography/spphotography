@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { X, Play } from 'lucide-react';
 import { usePortfolioItems, getCategoryLabel, PortfolioItem } from '@/hooks/usePortfolioItems';
+import { getEmbedUrl, getYouTubeThumbnail, isYouTubeUrl } from '@/lib/embedUtils';
 
 // Import fallback portfolio images
 import prewedding1 from '@/assets/portfolio/prewedding-1.jpg';
@@ -126,12 +127,21 @@ export const PortfolioSection = () => {
                 >
                   {/* Embed Preview */}
                   <div className="absolute inset-0 pointer-events-none">
-                    <iframe
-                      src={item.embed_url}
-                      className="w-full h-full object-cover"
-                      allow="autoplay"
-                      loading="lazy"
-                    />
+                    {item.media_type === 'video' && isYouTubeUrl(item.embed_url) ? (
+                      <img 
+                        src={getYouTubeThumbnail(item.embed_url) || ''} 
+                        alt={item.title || 'Video thumbnail'}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <iframe
+                        src={getEmbedUrl(item.embed_url)}
+                        className="w-full h-full object-cover"
+                        allow="autoplay"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
                   
                   {/* Video Play Overlay */}
@@ -234,7 +244,7 @@ export const PortfolioSection = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <iframe
-                src={lightboxItem.embed_url}
+                src={getEmbedUrl(lightboxItem.embed_url)}
                 className="w-full h-full rounded-lg"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, LogOut, Image, Video, X, Save } from 'lucide-react';
 import { z } from 'zod';
+import { getEmbedUrl, getYouTubeThumbnail, isYouTubeUrl } from '@/lib/embedUtils';
 
 type MediaType = 'photo' | 'video';
 type PortfolioCategory = 'wedding' | 'pre-wedding' | 'baby-shower-maternity' | 'birthdays-family' | 'drone' | 'model-candid';
@@ -147,10 +148,13 @@ const Admin = () => {
 
     setIsSaving(true);
 
+    // Convert URL to embed format before saving
+    const convertedEmbedUrl = getEmbedUrl(embedUrl);
+    
     const itemData = {
       media_type: mediaType,
       category,
-      embed_url: embedUrl,
+      embed_url: convertedEmbedUrl,
       title: title || null,
     };
 
@@ -314,25 +318,46 @@ const Admin = () => {
                   {/* Embed URL */}
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground">
-                      {mediaType === 'photo' ? 'Google Drive Preview URL' : 'YouTube Embed URL'}
+                      {mediaType === 'photo' ? 'Google Drive Link' : 'YouTube Link'}
                     </label>
                     <Input
                       type="url"
                       value={embedUrl}
                       onChange={(e) => setEmbedUrl(e.target.value)}
                       placeholder={mediaType === 'photo' 
-                        ? 'https://drive.google.com/file/d/.../preview'
-                        : 'https://www.youtube.com/embed/...'
+                        ? 'https://drive.google.com/file/d/.../view'
+                        : 'https://youtu.be/... or https://youtube.com/watch?v=...'
                       }
                       className="bg-background border-border"
                       required
                     />
                     <p className="text-xs text-muted-foreground">
                       {mediaType === 'photo' 
-                        ? 'Use Google Drive file preview links'
-                        : 'Use YouTube embed URLs'
+                        ? 'Paste any Google Drive share link - it will be converted automatically'
+                        : 'Paste any YouTube link (share, watch, or embed) - it will be converted automatically'
                       }
                     </p>
+                    {/* Live Preview */}
+                    {embedUrl && (
+                      <div className="mt-3 rounded-lg overflow-hidden border border-border aspect-video bg-muted">
+                        {isYouTubeUrl(embedUrl) ? (
+                          <img 
+                            src={getYouTubeThumbnail(embedUrl) || ''} 
+                            alt="Video thumbnail"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <iframe
+                            src={getEmbedUrl(embedUrl)}
+                            className="w-full h-full"
+                            allow="autoplay"
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Title */}
@@ -392,16 +417,16 @@ const Admin = () => {
                 className="bg-card border border-border rounded-xl overflow-hidden group"
               >
                 {/* Preview */}
-                <div className="aspect-video bg-muted relative">
-                  {item.media_type === 'photo' ? (
-                    <iframe
-                      src={item.embed_url}
-                      className="w-full h-full"
-                      allow="autoplay"
+                <div className="aspect-video bg-muted relative overflow-hidden">
+                  {item.media_type === 'video' && isYouTubeUrl(item.embed_url) ? (
+                    <img 
+                      src={getYouTubeThumbnail(item.embed_url) || ''} 
+                      alt={item.title || 'Video thumbnail'}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <iframe
-                      src={item.embed_url}
+                      src={getEmbedUrl(item.embed_url)}
                       className="w-full h-full"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
