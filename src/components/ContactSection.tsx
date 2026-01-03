@@ -16,15 +16,47 @@ export const ContactSection = () => {
     eventType: '',
     message: '',
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Here you would typically send the form data to a server
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for reaching out. I'll get back to you within 24 hours.",
-    });
-    setFormData({ name: '', email: '', phone: '', eventType: '', message: '' });
+    setSubmitting(true);
+
+    try {
+      const form = e.currentTarget as HTMLFormElement;
+      const payload = new FormData(form);
+      payload.append('access_key', '11666945-3585-49d1-897e-40c36118f188');
+
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: payload,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast({
+          title: 'Message Sent!',
+          description: "Thank you for reaching out. I'll get back to you within 24 hours.",
+        });
+        setFormData({ name: '', email: '', phone: '', eventType: '', message: '' });
+        form.reset();
+      } else {
+        toast({
+          title: 'Error sending message',
+          description: data.message || 'Please try again later.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err) {
+      toast({
+        title: 'Network error',
+        description: 'Unable to send message. Please try again later.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
