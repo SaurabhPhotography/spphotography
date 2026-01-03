@@ -14,11 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      portfolio_categories: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          display_label: string
+          thumbnail_url: string
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          display_label: string
+          thumbnail_url: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          display_label?: string
+          thumbnail_url?: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           category: Database["public"]["Enums"]["portfolio_category"]
           created_at: string
           embed_url: string
+          full_url: string | null
           id: string
           media_type: Database["public"]["Enums"]["media_type"]
           title: string | null
@@ -27,6 +61,7 @@ export type Database = {
           category: Database["public"]["Enums"]["portfolio_category"]
           created_at?: string
           embed_url: string
+          full_url?: string | null
           id?: string
           media_type: Database["public"]["Enums"]["media_type"]
           title?: string | null
@@ -35,6 +70,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["portfolio_category"]
           created_at?: string
           embed_url?: string
+          full_url?: string | null
           id?: string
           media_type?: Database["public"]["Enums"]["media_type"]
           title?: string | null

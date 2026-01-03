@@ -94,3 +94,94 @@ export function getYouTubeThumbnail(url: string, quality: 'default' | 'medium' |
   
   return `https://img.youtube.com/vi/${videoId}/${qualityMap[quality]}.jpg`;
 }
+
+/**
+ * Get optimized thumbnail URL for Google Drive images
+ * Adds size parameter for faster loading
+ */
+export function getGoogleDriveThumbnail(url: string, size: number = 400): string | null {
+  const patterns = [
+    /(?:https?:\/\/)?drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)(?:\/view|\/preview)?/,
+    /(?:https?:\/\/)?drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w${size}`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Get optimized thumbnail for any media type
+ */
+export function getOptimizedThumbnail(url: string, mediaType: 'photo' | 'video', size: number = 400): string {
+  if (isYouTubeUrl(url)) {
+    return getYouTubeThumbnail(url, 'high') || url;
+  }
+  
+  if (isGoogleDriveUrl(url) && mediaType === 'photo') {
+    return getGoogleDriveThumbnail(url, size) || url;
+  }
+  
+  return url;
+}
+
+/**
+ * Get direct Google Drive image URL for full-screen viewing
+ * Converts Google Drive file URLs to high-resolution thumbnail URLs
+ * Note: Google Drive blocks direct image hotlinking, so we use thumbnail API with large size
+ */
+export function getGoogleDriveDirectUrl(url: string, size: number = 4000): string | null {
+  const patterns = [
+    /(?:https?:\/\/)?drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)(?:\/view|\/preview)?/,
+    /(?:https?:\/\/)?drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+    /(?:https?:\/\/)?drive\.google\.com\/thumbnail\?id=([a-zA-Z0-9_-]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      // Use thumbnail API with large size for high-quality full-screen viewing
+      // This is the most reliable method for Google Drive images
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w${size}`;
+    }
+  }
+  
+  // If already a thumbnail URL, return as is
+  if (url.includes('drive.google.com/thumbnail')) {
+    return url;
+  }
+  
+  return null;
+}
+
+/**
+ * Get the appropriate URL for full-screen viewing
+ * For photos: uses full_url if available, otherwise converts embed_url to high-res thumbnail
+ * For videos: uses embed_url
+ */
+export function getFullScreenUrl(item: { 
+  media_type: 'photo' | 'video'; 
+  embed_url: string; 
+  full_url?: string | null 
+}): string {
+  if (item.media_type === 'video') {
+    return getEmbedUrl(item.embed_url);
+  }
+  
+  // For photos, prefer full_url if provided
+  if (item.full_url) {
+    return item.full_url;
+  }
+  
+  // Fallback: use high-resolution thumbnail (4000px) for full-screen viewing
+  // This is the most reliable method for Google Drive images
+  if (isGoogleDriveUrl(item.embed_url)) {
+    return getGoogleDriveDirectUrl(item.embed_url, 4000) || getEmbedUrl(item.embed_url);
+  }
+  
+  return getEmbedUrl(item.embed_url);
+}

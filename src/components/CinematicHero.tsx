@@ -212,7 +212,7 @@ export const CinematicHero = ({ onAnimationComplete }: CinematicHeroProps) => {
 
             {/* Main Title */}
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-foreground mb-6 leading-tight">
-              Saurabh
+              Saurabh Patle
               <span className="block text-gradient-gold">Photography</span>
             </h1>
 

@@ -9,6 +9,7 @@ export interface PortfolioItem {
   media_type: MediaType;
   category: PortfolioCategory;
   embed_url: string;
+  full_url: string | null;
   title: string | null;
   created_at: string;
 }

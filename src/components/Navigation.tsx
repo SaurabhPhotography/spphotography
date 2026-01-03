@@ -63,11 +63,19 @@ export const Navigation = ({ showNav }: NavigationProps) => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center">
-                  <span className="text-primary font-serif text-lg font-medium">S</span>
+                  <span className="text-primary font-serif text-lg font-medium"><img
+        src="/logo.png"
+        alt="Saurabh Photography Logo"
+        width={32}
+        height={32}
+        className="object-contain"
+      />
+                    
+                  </span>
                 </div>
                 <div className="hidden sm:block">
                   <span className="font-serif text-lg text-foreground tracking-wide">
-                    Saurabh
+                    Saurabh Patle
                   </span>
                   <span className="font-serif text-lg text-primary tracking-wide ml-1">
                     Photography
