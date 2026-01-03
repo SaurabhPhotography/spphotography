@@ -121,7 +121,7 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <h4 className="font-serif text-lg text-foreground mb-1">Email</h4>
-                  <p className="text-muted-foreground">hello@saurabhphotography.com</p>
+                  <p className="text-muted-foreground">saurabhp.photography@gmail.com</p>
                 </div>
               </div>
 
@@ -131,7 +131,7 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <h4 className="font-serif text-lg text-foreground mb-1">Location</h4>
-                  <p className="text-muted-foreground">Mumbai, Maharashtra, India</p>
+                  <p className="text-muted-foreground">Akola, Maharashtra, India</p>
                   <p className="text-muted-foreground text-sm">Available for destination shoots</p>
                 </div>
               </div>
@@ -191,10 +191,16 @@ export const ContactSection = () => {
                     id="phone"
                     name="phone"
                     value={formData.phone}
-                    onChange={handleChange}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      if (value.length <= 10) {
+                        setFormData({ ...formData, phone: value });
+                      }
+                    }}
+                    maxLength={10}
                     required
                     className="w-full px-4 py-3 bg-background border border-border/50 rounded-lg text-foreground focus:outline-none focus:border-primary transition-colors duration-300"
-                    placeholder="+91 12345 67890"
+                    placeholder="1234567890"
                   />
                 </div>
               </div>
