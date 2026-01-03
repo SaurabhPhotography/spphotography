@@ -111,7 +111,7 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <h4 className="font-serif text-lg text-foreground mb-1">Phone</h4>
-                  <p className="text-muted-foreground">+91 98765 43210</p>
+                  <p className="text-muted-foreground">+91 7414942063</p>
                 </div>
               </div>
 
