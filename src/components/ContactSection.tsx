@@ -63,7 +63,7 @@ export const ContactSection = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const whatsappNumber = '919876543210'; // Replace with actual number
+  const whatsappNumber = '917414942063'; // Replace with actual number
   const whatsappMessage = encodeURIComponent('Hello! I am interested in your photography services.');
 
   return (
@@ -111,7 +111,7 @@ export const ContactSection = () => {
                 </div>
                 <div>
                   <h4 className="font-serif text-lg text-foreground mb-1">Phone</h4>
-                  <p className="text-muted-foreground">+91 7414942063</p>
+                  <p className="text-muted-foreground">+91 7414 942 063</p>
                 </div>
               </div>
 
