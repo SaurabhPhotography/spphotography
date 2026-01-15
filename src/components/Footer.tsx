@@ -83,7 +83,15 @@ export const Footer = () => {
           >
             <p className="flex items-center justify-center gap-2">
               © {currentYear} Saurabh Photography. Made with{' '}
-              <Heart className="w-4 h-4 text-primary fill-primary" /> in India
+              <Heart className="w-4 h-4 text-primary fill-primary" /> in India by
+              <a
+              href="https://devendra-data-canvas.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-colors font-semibold"
+            >
+              Portfolio_.hub
+            </a>
             </p>
           </motion.div>
         </div>
@@ -91,3 +99,5 @@ export const Footer = () => {
     </footer>
   );
 };
+
+
